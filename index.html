@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥊 MMA Fighters - 2 Players</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: #0a0a12;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .game-wrapper {
+            background: #14141f;
+            padding: 1.5rem 2rem 1.8rem;
+            border-radius: 2rem;
+            box-shadow: 0 0 60px rgba(255, 50, 50, 0.15);
+            border: 1px solid #2a2a3e;
+            max-width: 1020px;
+            width: fit-content;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: #0d0d1a;
+            border-radius: 24px;
+            box-shadow: inset 0 0 0 2px #2a2a44, 0 15px 30px rgba(0, 0, 0, 0.8);
+            width: 960px;
+            height: 540px;
+            image-rendering: auto;
+            cursor: pointer;
+        }
+
+        .painel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.8rem;
+            gap: 0.5rem 1.2rem;
+            color: #d0d5e0;
+        }
+
+        .status {
+            display: flex;
+            gap: 1.8rem;
+            background: #0d0d18;
+            padding: 0.3rem 1.5rem;
+            border-radius: 60px;
+            border: 1px solid #2a2a44;
+            font-weight: 600;
+            font-size: 0.9rem;
+            align-items: center;
+        }
+
+        .status .label {
+            color: #7a7a9a;
+        }
+
+        .status .valor {
+            color: #ffd700;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        .fase-badge {
+            background: #0d0d18;
+            padding: 0.2rem 1.2rem;
+            border-radius: 60px;
+            border: 1px solid #ffd700;
+            color: #ffd700;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .acoes {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        button {
+            background: #20203a;
+            border: none;
+            padding: 0.35rem 1.1rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #e8ecf5;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid #3a3a5a;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button:hover {
+            background: #33335a;
+            transform: scale(1.03);
+            border-color: #6a6a9a;
+        }
+
+        button.primary {
+            background: #2563eb;
+            border-color: #3b82f6;
+        }
+
+        button.primary:hover {
+            background: #1d4ed8;
+        }
+
+        button.danger {
+            background: #dc2626;
+            border-color: #ef4444;
+        }
+
+        button.danger:hover {
+            background: #b91c1c;
+        }
+
+        button.success {
+            background: #16a34a;
+            border-color: #22c55e;
+        }
+
+        button.success:hover {
+            background: #15803d;
+        }
+
+        .login-area {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+            background: #0d0d18;
+            padding: 0.1rem 0.6rem 0.1rem 1rem;
+            border-radius: 60px;
+            border: 1px solid #2a2a44;
+        }
+
+        .login-area input {
+            background: transparent;
+            border: none;
+            padding: 0.3rem 0;
+            width: 100px;
+            color: #e8ecf5;
+            outline: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .login-area input::placeholder {
+            color: #5a5a7a;
+        }
+
+        .login-area button {
+            background: #3b82f6;
+            border: none;
+            padding: 0.15rem 0.9rem;
+            border-radius: 30px;
+            font-weight: 600;
+            color: white;
+            font-size: 0.75rem;
+        }
+
+        .ranking-box {
+            background: #0d0d18;
+            border-radius: 60px;
+            padding: 0.2rem 1.2rem 0.2rem 1.5rem;
+            border: 1px solid #2a2a44;
+            font-size: 0.8rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .ranking-box span {
+            color: #ffd700;
+            font-weight: 700;
+        }
+
+        .dica {
+            background: #0d0d18;
+            padding: 0.2rem 1rem;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            color: #7a7a9a;
+            border: 1px dashed #3a3a5a;
+        }
+
+        #modalAjuda,
+        #modalMenu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .card-ajuda {
+            background: #1a1a2e;
+            max-width: 560px;
+            padding: 2rem 2.5rem;
+            border-radius: 40px;
+            color: #d0d5e0;
+            border: 1px solid #3a3a5a;
+            box-shadow: 0 30px 60px #000000dd;
+        }
+
+        .card-ajuda h2 {
+            color: #ffd700;
+            margin-bottom: 0.3rem;
+        }
+
+        .card-ajuda ul {
+            list-style: none;
+            padding: 0;
+            margin: 0.6rem 0 1.5rem;
+        }
+
+        .card-ajuda li {
+            margin: 0.4rem 0;
+            padding-left: 1.2rem;
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .card-ajuda kbd {
+            background: #0d0d18;
+            padding: 0.1rem 0.7rem;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .fechar-ajuda {
+            background: #dc2626;
+            border: none;
+            padding: 0.5rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .fechar-ajuda:hover {
+            background: #b91c1c;
+        }
+
+        .menu-container {
+            background: #1a1a2e;
+            max-width: 700px;
+            width: 90%;
+            padding: 2rem;
+            border-radius: 40px;
+            color: #d0d5e0;
+            border: 1px solid #3a3a5a;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .menu-container h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .char-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .char-btn {
+            padding: 0.6rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            transition: 0.15s;
+        }
+
+        .char-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .char-btn.selected {
+            box-shadow: 0 0 0 3px #ffd700;
+        }
+
+        .upgrade-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin: 0.5rem 0;
+        }
+
+        .upgrade-item {
+            background: #0d0d18;
+            padding: 0.6rem;
+            border-radius: 12px;
+            border: 1px solid #2a2a44;
+        }
+
+        .upgrade-item .upg-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .upgrade-item .upg-header span:last-child {
+            color: #ffd700;
+        }
+
+        .upgrade-item button {
+            width: 100%;
+            padding: 0.3rem;
+            font-size: 0.7rem;
+        }
+
+        .controles-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+            background: #0d0d18;
+            padding: 0.8rem;
+            border-radius: 20px;
+            border: 1px solid #2a2a44;
+        }
+
+        .controles-grid h4 {
+            margin-bottom: 0.3rem;
+        }
+
+        .controles-grid p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .controles-grid kbd {
+            background: #0d0d18;
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            color: #ffd700;
+        }
+
+        .btn-jogar {
+            width: 100%;
+            padding: 0.8rem;
+            background: #2563eb;
+            border: none;
+            border-radius: 60px;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .btn-jogar:hover {
+            background: #1d4ed8;
+        }
+
+        .pontos-display {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .pontos-display span {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1020px) {
+            .game-wrapper {
+                padding: 0.8rem;
+            }
+
+            canvas {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 960/540;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="game-wrapper">
+        <canvas id="arena" width="960" height="540"></canvas>
+
+        <div class="painel">
+            <div class="status">
+                <div>👊 <span id="userDisplay">convidado</span></div>
+                <div>🏆 <span class="valor" id="vitoriasDisplay">0 - 0</span></div>
+                <div class="fase-badge" id="faseDisplay">🥊 FASE 1</div>
+            </div>
+            <div class="acoes">
+                <button id="menuBtn" class="primary">📋 MENU</button>
+                <div class="login-area">
+                    <input type="text" id="nomeInput" placeholder="nick" maxlength="12" value="Lutador">
+                    <button id="loginBtn">login</button>
+                </div>
+                <button id="resetBtn" class="danger">🔄 reiniciar</button>
+                <button id="ajudaBtn" title="Pressione F1">❓ ajuda</button>
+            </div>
+        </div>
+        <div class="painel" style="margin-top: 0.2rem; justify-content: flex-start; gap: 1.2rem;">
+            <div class="ranking-box">🏅 RANKING: <span id="rankingDisplay">—</span></div>
+            <div class="dica">P1: WASD · Z/X · P2: Setas · 1/2</div>
+        </div>
+    </div>
+
+    <!-- MENU PRINCIPAL (aparece antes da partida) -->
+    <div id="modalMenu" style="display:flex;">
+        <div class="menu-container">
+            <h2>🥊 MENU DO JOGO</h2>
+
+            <!-- Seleção de Personagens -->
+            <div style="margin-bottom:1rem;">
+                <h3 style="color:#facc15; margin-bottom:0.5rem;">👤 ESCOLHA SEU LUTADOR</h3>
+                <div class="char-grid">
+                    <button class="char-btn" data-char="silva" style="background:#f59e0b;">🕷️ Anderson Silva</button>
+                    <button class="char-btn" data-char="aldo" style="background:#ef4444;">🔥 José Aldo</button>
+                    <button class="char-btn" data-char="nunes" style="background:#8b5cf6;">🦁 Amanda Nunes</button>
+                    <button class="char-btn" data-char="oliveira" style="background:#22c55e;">🍃 Charles
+                        Oliveira</button>
+                    <button class="char-btn" data-char="gracie" style="background:#3b82f6;">🟦 Rickson Gracie</button>
+                    <button class="char-btn" data-char="minotauro" style="background:#f97316;">🐂 Minotauro
+                        Nogueira</button>
+                </div>
+                <div style="text-align:center; color:#94a3b8; font-size:0.85rem;">
+                    P1: <span style="color:#3b82f6;" id="p1CharName">Anderson Silva</span>
+                    | P2: <span style="color:#ef4444;" id="p2CharName">José Aldo</span>
+                </div>
+            </div>
+
+            <!-- Upgrades -->
+            <div
+                style="margin-bottom:1rem; background:#0d0d18; padding:1rem; border-radius:20px; border:1px solid #2a2a44;">
+                <h3 style="color:#facc15; margin-bottom:0.5rem;">⬆️ MELHORAR GOLPES</h3>
+                <div class="upgrade-grid">
+                    <div class="upgrade-item">
+                        <div class="upg-header"><span>🥊 Soco</span><span id="socoLevel">Nv.1</span></div>
+                        <button id="upgradeSoco" class="success">+ Dano (100 pts)</button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div class="upg-header"><span>🦵 Chute</span><span id="chuteLevel">Nv.1</span></div>
+                        <button id="upgradeChute" class="success">+ Dano (100 pts)</button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div class="upg-header"><span>💨 Velocidade</span><span id="velLevel">Nv.1</span></div>
+                        <button id="upgradeVel" class="success">+ Velocidade (80 pts)</button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div class="upg-header"><span>❤️ Vida</span><span id="vidaLevel">Nv.1</span></div>
+                        <button id="upgradeVida" class="success">+ Vida (120 pts)</button>
+                    </div>
+                </div>
+                <div class="pontos-display">💰 Pontos: <span id="pontosDisplay">0</span></div>
+            </div>
+
+            <!-- Controles -->
+            <div class="controles-grid">
+                <div>
+                    <h4 style="color:#3b82f6;">👤 JOGADOR 1</h4>
+                    <p>Mover: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></p>
+                    <p>Soco: <kbd>Z</kbd> | Chute: <kbd>X</kbd></p>
+                </div>
+                <div>
+                    <h4 style="color:#ef4444;">👤 JOGADOR 2</h4>
+                    <p>Mover: <kbd>⬆</kbd> <kbd>⬇</kbd> <kbd>⬅</kbd> <kbd>➡</kbd></p>
+                    <p>Soco: <kbd>1</kbd> | Chute: <kbd>2</kbd></p>
+                </div>
+            </div>
+
+            <button class="btn-jogar" id="fecharMenu">▶️ INICIAR PARTIDA</button>
+        </div>
+    </div>
+
+    <!-- Modal ajuda -->
+    <div id="modalAjuda" style="display:none;">
+        <div class="card-ajuda">
+            <h2>🥊 TUTORIAL · 2 PLAYERS</h2>
+            <p style="margin-bottom: 0.5rem; color: #b0b5c5;"><strong style="color: #ffd700;">OBJETIVO:</strong> vença
+                <strong>3 lutas</strong> para avançar de fase!
+            </p>
+            <ul>
+                <li><strong style="color:#3b82f6;">Jogador 1:</strong> <kbd>W A S D</kbd> mover · <kbd>Z</kbd> soco ·
+                    <kbd>X</kbd> chute
+                </li>
+                <li><strong style="color:#ef4444;">Jogador 2:</strong> <kbd>Setas</kbd> mover · <kbd>1</kbd> soco ·
+                    <kbd>2</kbd> chute
+                </li>
+                <li>Use o <strong style="color:#ffd700;">MENU</strong> para escolher personagens e melhorar golpes</li>
+                <li>Cada fase: inimigo mais rápido e agressivo</li>
+                <li>Login para salvar sua pontuação no ranking</li>
+            </ul>
+            <p
+                style="font-size: 0.85rem; background: #0d0d18; padding: 0.4rem 1.2rem; border-radius: 30px; margin: 0.2rem 0 1.2rem;">
+                💡 Pressione <kbd>F1</kbd> a qualquer momento
+            </p>
+            <button class="fechar-ajuda" id="fecharAjuda">Vamos lutar!</button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // ---------- CONFIG ----------
+            const canvas = document.getElementById('arena');
+            const ctx = canvas.getContext('2d');
+            const W = 960, H = 540;
+
+            // UI
+            const vitoriasSpan = document.getElementById('vitoriasDisplay');
+            const faseSpan = document.getElementById('faseDisplay');
+            const userSpan = document.getElementById('userDisplay');
+            const rankingSpan = document.getElementById('rankingDisplay');
+            const nomeInput = document.getElementById('nomeInput');
+            const loginBtn = document.getElementById('loginBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const ajudaBtn = document.getElementById('ajudaBtn');
+            const fecharAjuda = document.getElementById('fecharAjuda');
+            const modalAjuda = document.getElementById('modalAjuda');
+            const modalMenu = document.getElementById('modalMenu');
+            const menuBtn = document.getElementById('menuBtn');
+            const fecharMenu = document.getElementById('fecharMenu');
+            const p1CharName = document.getElementById('p1CharName');
+            const p2CharName = document.getElementById('p2CharName');
+
+            // Upgrades UI
+            const socoLevelSpan = document.getElementById('socoLevel');
+            const chuteLevelSpan = document.getElementById('chuteLevel');
+            const velLevelSpan = document.getElementById('velLevel');
+            const vidaLevelSpan = document.getElementById('vidaLevel');
+            const pontosDisplay = document.getElementById('pontosDisplay');
+
+            let pontos = 0;
+            let socoLevel = 1;
+            let chuteLevel = 1;
+            let velLevel = 1;
+            let vidaLevel = 1;
+
+            // ---------- LUTADORES ----------
+            const PERSONAGENS = {
+                silva: {
+                    nome: 'Anderson Silva',
+                    apelido: 'Spider',
+                    cor: '#f59e0b',
+                    corSecundaria: '#d97706',
+                    corTerciaria: '#fcd34d',
+                    corCabelo: '#1a1a2e',
+                    corPele: '#d4a373',
+                    velocidade: 3.2,
+                    pulo: -7.0,
+                    socoDano: 15,
+                    chuteDano: 20,
+                    socoAlcance: 62,
+                    chuteAlcance: 72,
+                    vida: 105,
+                    emoji: '🕷️',
+                    descricao: 'Precisão cirúrgica',
+                    estilo: 'Muay Thai / Boxe'
+                },
+                aldo: {
+                    nome: 'José Aldo',
+                    apelido: 'Junior',
+                    cor: '#ef4444',
+                    corSecundaria: '#dc2626',
+                    corTerciaria: '#fca5a5',
+                    corCabelo: '#1a1a2e',
+                    corPele: '#e8b88a',
+                    velocidade: 3.4,
+                    pulo: -7.3,
+                    socoDano: 16,
+                    chuteDano: 22,
+                    socoAlcance: 60,
+                    chuteAlcance: 70,
+                    vida: 100,
+                    emoji: '🔥',
+                    descricao: 'Golpes devastadores',
+                    estilo: 'Muay Thai / Boxe'
+                },
+                nunes: {
+                    nome: 'Amanda Nunes',
+                    apelido: 'Leoa',
+                    cor: '#8b5cf6',
+                    corSecundaria: '#7c3aed',
+                    corTerciaria: '#c4b5fd',
+                    corCabelo: '#1a1a2e',
+                    corPele: '#e8b88a',
+                    velocidade: 3.1,
+                    pulo: -6.8,
+                    socoDano: 17,
+                    chuteDano: 19,
+                    socoAlcance: 58,
+                    chuteAlcance: 66,
+                    vida: 110,
+                    emoji: '🦁',
+                    descricao: 'Potência bruta',
+                    estilo: 'Boxe / Jiu-Jitsu'
+                },
+                oliveira: {
+                    nome: 'Charles Oliveira',
+                    apelido: 'Do Bronx',
+                    cor: '#22c55e',
+                    corSecundaria: '#16a34a',
+                    corTerciaria: '#86efac',
+                    corCabelo: '#1a1a2e',
+                    corPele: '#e8b88a',
+                    velocidade: 3.0,
+                    pulo: -6.6,
+                    socoDano: 14,
+                    chuteDano: 16,
+                    socoAlcance: 64,
+                    chuteAlcance: 68,
+                    vida: 115,
+                    emoji: '🍃',
+                    descricao: 'Finalizações letais',
+                    estilo: 'Jiu-Jitsu / Muay Thai'
+                },
+                gracie: {
+                    nome: 'Rickson Gracie',
+                    apelido: 'O Imortal',
+                    cor: '#3b82f6',
+                    corSecundaria: '#2563eb',
+                    corTerciaria: '#93c5fd',
+                    corCabelo: '#1a1a2e',
+                    corPele: '#f5d0b8',
+                    velocidade: 2.6,
+                    pulo: -6.0,
+                    socoDano: 12,
+                    chuteDano: 14,
+                    socoAlcance: 54,
+                    chuteAlcance: 60,
+                    vida: 125,
+                    emoji: '🟦',
+                    descricao: 'Arte suave',
+                    estilo: 'Jiu-Jitsu'
+                },
+                minotauro: {
+                    nome: 'Minotauro Nogueira',
+                    apelido: 'Big Nog',
+                    cor: '#f97316',
+                    corSecundaria: '#ea580c',
+                    corTerciaria: '#fdba74',
+                    corCabelo: '#1a1a2e',
+                    corPele: '#e8b88a',
+                    velocidade: 2.4,
+                    pulo: -5.8,
+                    socoDano: 13,
+                    chuteDano: 15,
+                    socoAlcance: 56,
+                    chuteAlcance: 62,
+                    vida: 130,
+                    emoji: '🐂',
+                    descricao: 'Resistência lendária',
+                    estilo: 'Jiu-Jitsu / Boxe'
+                }
+            };
+
+            // ---------- ESTADO ----------
+            let usuario = 'convidado';
+            let p1Vitorias = 0;
+            let p2Vitorias = 0;
+            let fase = 1;
+            const VITORIAS_POR_FASE = 3;
+            let roundAtivo = true;
+            let tempoRound = 0;
+            let personagemAtualP1 = 'silva';
+            let personagemAtualP2 = 'aldo';
+            let jogoIniciado = false;
+
+            let ranking = [
+                { user: 'Anderson Silva', score: 18 },
+                { user: 'Jose Aldo', score: 15 },
+                { user: 'Amanda Nunes', score: 12 },
+            ];
+
+            // ---------- FUNÇÕES 3D ----------
+            function project3D(x, y, z) {
+                const scale = 0.85 + z * 0.0008;
+                return {
+                    x: W / 2 + (x - W / 2) * scale,
+                    y: H - 60 + (y - (H - 60)) * scale - z * 0.12,
+                    scale: scale
+                };
+            }
+
+            // ---------- DESENHA PERSONAGEM ----------
+            function desenharLutador(p, x, y, z, facing, atacando, ataqueTipo, timerAtaque, invencivel, animFrame, nomeTag, corNome) {
+                const proj = project3D(x, y, z || 0);
+                const s = proj.scale * 1.5;
+                const px = proj.x;
+                const py = proj.y;
+
+                ctx.fillStyle = 'rgba(0,0,0,0.35)';
+                ctx.beginPath();
+                ctx.ellipse(px, py + 6 * s, 34 * s, 10 * s, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (invencivel > 0 && Math.floor(invencivel / 4) % 2 === 0) {
+                    ctx.globalAlpha = 0.5;
+                }
+
+                const baseY = py;
+                const f = facing;
+
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 20;
+
+                ctx.fillStyle = p.corCabelo;
+                ctx.beginPath();
+                ctx.ellipse(px, baseY - 38 * s, 22 * s, 14 * s, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(px, baseY - 46 * s, 18 * s, 12 * s, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = p.corPele;
+                ctx.beginPath();
+                ctx.ellipse(px, baseY - 34 * s, 20 * s, 22 * s, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                const eyeOff = f === 1 ? 5 * s : -5 * s;
+                ctx.fillStyle = '#f1f5f9';
+                ctx.beginPath();
+                ctx.ellipse(px - 9 * s + eyeOff, baseY - 38 * s, 6 * s, 7 * s, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(px + 9 * s + eyeOff, baseY - 38 * s, 6 * s, 7 * s, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.arc(px - 10 * s + eyeOff, baseY - 37 * s, 3 * s, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(px + 8 * s + eyeOff, baseY - 37 * s, 3 * s, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = p.corCabelo;
+                ctx.lineWidth = 3 * s;
+                ctx.beginPath();
+                ctx.moveTo(px - 14 * s + eyeOff, baseY - 46 * s);
+                ctx.lineTo(px - 4 * s + eyeOff, baseY - 44 * s);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(px + 14 * s + eyeOff, baseY - 46 * s);
+                ctx.lineTo(px + 4 * s + eyeOff, baseY - 44 * s);
+                ctx.stroke();
+
+                ctx.fillStyle = '#7a4a3a';
+                ctx.fillRect(px - 5 * s + eyeOff * 0.3, baseY - 24 * s, 10 * s, 3 * s);
+
+                ctx.shadowColor = p.cor;
+                ctx.shadowBlur = 25;
+
+                ctx.fillStyle = p.cor;
+                ctx.beginPath();
+                ctx.roundRect(px - 24 * s, baseY - 24 * s, 48 * s, 36 * s, 8 * s);
+                ctx.fill();
+
+                ctx.fillStyle = p.corSecundaria;
+                ctx.fillRect(px - 22 * s, baseY - 16 * s, 44 * s, 6 * s);
+                ctx.fillRect(px - 22 * s, baseY - 4 * s, 44 * s, 6 * s);
+
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(px - 20 * s, baseY - 2 * s, 40 * s, 5 * s);
+
+                const isAtacando = atacando && timerAtaque > 0;
+                const progresso = isAtacando ? 1 - (timerAtaque / 14) : 0;
+                const extensao = isAtacando ? Math.sin(progresso * Math.PI) * 22 * s : 0;
+                const isSoco = isAtacando && ataqueTipo === 'soco';
+                const isChute = isAtacando && ataqueTipo === 'chute';
+
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 15;
+
+                ctx.fillStyle = p.corPele;
+                ctx.beginPath();
+                ctx.roundRect(px - 32 * s, baseY - 22 * s + 3 * s, 10 * s, 22 * s, 5 * s);
+                ctx.fill();
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.roundRect(px - 34 * s, baseY - 4 * s + 3 * s, 14 * s, 8 * s, 4 * s);
+                ctx.fill();
+
+                const bracoDirX = px + 22 * s + (isSoco ? extensao * 0.7 : 0);
+                const bracoDirY = baseY - 22 * s + (isSoco ? -4 * s * Math.sin(progresso * Math.PI) : 0);
+
+                ctx.fillStyle = p.corPele;
+                ctx.beginPath();
+                ctx.roundRect(bracoDirX, bracoDirY, 10 * s, 22 * s + (isSoco ? 4 * s * Math.sin(progresso * Math.PI) : 0), 5 * s);
+                ctx.fill();
+
+                const luvaX = px + 20 * s + (isSoco ? extensao * 1.1 : 0);
+                const luvaY = baseY - 4 * s + (isSoco ? -4 * s * Math.sin(progresso * Math.PI) : 0);
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.roundRect(luvaX, luvaY, 14 * s + (isSoco ? 4 * s * Math.sin(progresso * Math.PI) : 0), 8 * s + (isSoco ? 4 * s * Math.sin(progresso * Math.PI) : 0), 4 * s);
+                ctx.fill();
+
+                ctx.fillStyle = '#1a1a2e';
+                ctx.beginPath();
+                ctx.roundRect(px - 20 * s, baseY + 10 * s, 14 * s, 22 * s, 5 * s);
+                ctx.fill();
+
+                const pernaDirX = px + 6 * s + (isChute ? extensao * 0.8 : 0);
+                const pernaDirY = baseY + 10 * s - (isChute ? 4 * s * Math.sin(progresso * Math.PI) : 0);
+                const pernaDirH = 22 * s + (isChute ? 6 * s * Math.sin(progresso * Math.PI) : 0);
+
+                ctx.fillStyle = '#1a1a2e';
+                ctx.beginPath();
+                ctx.roundRect(pernaDirX, pernaDirY, 14 * s, pernaDirH, 5 * s);
+                ctx.fill();
+
+                ctx.fillStyle = '#2a2a44';
+                ctx.beginPath();
+                ctx.roundRect(px - 22 * s, baseY + 30 * s, 16 * s, 8 * s, 4 * s);
+                ctx.fill();
+
+                const calcadoX = px + 6 * s + (isChute ? extensao * 1.0 : 0);
+                ctx.fillStyle = '#2a2a44';
+                ctx.beginPath();
+                ctx.roundRect(calcadoX, baseY + 30 * s - (isChute ? 4 * s * Math.sin(progresso * Math.PI) : 0), 16 * s + (isChute ? 4 * s * Math.sin(progresso * Math.PI) : 0), 8 * s + (isChute ? 4 * s * Math.sin(progresso * Math.PI) : 0), 4 * s);
+                ctx.fill();
+
+                if (isAtacando) {
+                    ctx.shadowColor = isSoco ? '#ffd700' : '#ff6b6b';
+                    ctx.shadowBlur = 50;
+                    ctx.strokeStyle = isSoco ? '#ffd700' : '#ff6b6b';
+                    ctx.lineWidth = 6 * s;
+
+                    const ang = f === 1 ? 0 : Math.PI;
+                    const offsetX = isSoco ? 48 : 52;
+                    const offsetY = isSoco ? -20 : -12;
+                    const raio = isSoco ? 40 : 46;
+
+                    ctx.beginPath();
+                    ctx.arc(
+                        px + Math.cos(ang) * offsetX * s * (0.6 + progresso * 0.4),
+                        baseY + offsetY * s,
+                        raio * s * (0.5 + progresso * 0.5),
+                        ang - 0.9, ang + 0.9
+                    );
+                    ctx.stroke();
+
+                    ctx.shadowBlur = 70;
+                    ctx.globalAlpha = 0.2;
+                    ctx.beginPath();
+                    ctx.arc(
+                        px + Math.cos(ang) * offsetX * s * 0.5,
+                        baseY + offsetY * s,
+                        raio * s * 0.4,
+                        ang - 0.7, ang + 0.7
+                    );
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                    ctx.shadowBlur = 0;
+
+                    ctx.fillStyle = isSoco ? '#ffd700' : '#ff6b6b';
+                    ctx.font = `bold ${16 * s}px sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.shadowColor = isSoco ? '#ffd700' : '#ff6b6b';
+                    ctx.shadowBlur = 40;
+                    ctx.fillText(
+                        isSoco ? '💥 SOCO!' : '🦵 CHUTE!',
+                        px + Math.cos(ang) * 90 * s,
+                        baseY - 55 * s
+                    );
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = corNome || '#ffffffcc';
+                ctx.font = `bold ${16 * s}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText(`${p.emoji} ${nomeTag || p.nome}`, px, baseY - 60 * s);
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = `${11 * s}px sans-serif`;
+                ctx.fillText(`"${p.apelido}"`, px, baseY - 46 * s);
+
+                ctx.shadowBlur = 0;
+            }
+
+            // ---------- CRIAR LUTADORES ----------
+            function criarLutador(tipo, x, facing, corNome) {
+                const p = PERSONAGENS[tipo];
+                return {
+                    x: x, y: 400, z: 0,
+                    cor: p.cor,
+                    corSecundaria: p.corSecundaria,
+                    corTerciaria: p.corTerciaria,
+                    corCabelo: p.corCabelo,
+                    corPele: p.corPele,
+                    emoji: p.emoji,
+                    nome: p.nome,
+                    apelido: p.apelido,
+                    descricao: p.descricao,
+                    estilo: p.estilo,
+                    vida: p.vida + (vidaLevel - 1) * 5,
+                    maxVida: p.vida + (vidaLevel - 1) * 5,
+                    velocidade: p.velocidade + (velLevel - 1) * 0.15,
+                    vy: 0,
+                    pulo: p.pulo,
+                    gravidade: 0.5,
+                    noChao: false,
+                    atacando: false,
+                    ataqueTipo: 'soco',
+                    timerAtaque: 0,
+                    duracaoAtaque: 14,
+                    facing: facing,
+                    invencivel: 0,
+                    combo: 0,
+                    socoDano: p.socoDano + (socoLevel - 1) * 2,
+                    chuteDano: p.chuteDano + (chuteLevel - 1) * 2,
+                    socoAlcance: p.socoAlcance,
+                    chuteAlcance: p.chuteAlcance,
+                    tipo: tipo,
+                    animFrame: 0,
+                    corNome: corNome
+                };
+            }
+
+            let p1, p2;
+            let particulas = [];
+            let frameCount = 0;
+
+            function iniciarLuta() {
+                p1 = criarLutador(personagemAtualP1, 250, 1, '#3b82f6');
+                p2 = criarLutador(personagemAtualP2, 710, -1, '#ef4444');
+                particulas = [];
+                roundAtivo = true;
+                tempoRound = 0;
+                jogoIniciado = true;
+                atualizarUI();
+            }
+
+            // ---------- FUNÇÕES ----------
+            function resetarLuta() {
+                if (p1 && p2) {
+                    p1.vida = p1.maxVida;
+                    p2.vida = p2.maxVida;
+                    p1.x = 250;
+                    p2.x = 710;
+                    p1.y = 400;
+                    p2.y = 400;
+                    p1.vy = 0;
+                    p2.vy = 0;
+                    p1.atacando = false;
+                    p2.atacando = false;
+                    p1.timerAtaque = 0;
+                    p2.timerAtaque = 0;
+                    p1.invencivel = 0;
+                    p2.invencivel = 0;
+                    p1.combo = 0;
+                    p2.combo = 0;
+                    particulas = [];
+                    roundAtivo = true;
+                    tempoRound = 0;
+                }
+                atualizarUI();
+            }
+
+            function resetarJogo() {
+                p1Vitorias = 0;
+                p2Vitorias = 0;
+                fase = 1;
+                iniciarLuta();
+                atualizarUI();
+            }
+
+            function aplicarDano(alvo, dano) {
+                if (alvo.invencivel > 0) return false;
+                alvo.vida -= dano;
+                alvo.invencivel = 20;
+                if (alvo.vida < 0) alvo.vida = 0;
+                return true;
+            }
+
+            function executarAtaque(atacante, alvo, tipo) {
+                if (atacante.atacando) return;
+                if (atacante.timerAtaque > 0) return;
+
+                atacante.atacando = true;
+                atacante.ataqueTipo = tipo;
+                atacante.timerAtaque = atacante.duracaoAtaque;
+
+                const dx = alvo.x - atacante.x;
+                const dy = alvo.y - atacante.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const alcance = tipo === 'soco' ? atacante.socoAlcance : atacante.chuteAlcance;
+                const alturaMin = Math.abs(dy) < 60;
+
+                if (dist < alcance && alturaMin && alvo.invencivel === 0) {
+                    const dano = tipo === 'soco' ? atacante.socoDano : atacante.chuteDano;
+                    const acertou = aplicarDano(alvo, dano);
+                    if (acertou) {
+                        atacante.combo++;
+                        pontos += 10;
+                        criarEfeitoImpacto(alvo.x, alvo.y, alvo.z, alvo.cor);
+                        const dir = atacante.facing;
+                        alvo.x += dir * 25;
+                        alvo.vy = -5;
+                        atualizarPontosUI();
+                    }
+                }
+            }
+
+            function criarEfeitoImpacto(x, y, z, cor) {
+                for (let i = 0; i < 40; i++) {
+                    const ang = Math.random() * Math.PI * 2;
+                    const vel = 2 + Math.random() * 8;
+                    particulas.push({
+                        x, y, z: z || 0,
+                        vx: Math.cos(ang) * vel,
+                        vy: Math.sin(ang) * vel - 3,
+                        vz: (Math.random() - 0.5) * 3,
+                        vida: 30 + Math.random() * 25,
+                        raio: 3 + Math.random() * 6,
+                        cor: cor || `hsl(${30 + Math.random() * 30}, 100%, ${55 + Math.random() * 30}%)`
+                    });
+                }
+            }
+
+            // ---------- UI ----------
+            function atualizarUI() {
+                vitoriasSpan.textContent = `${p1Vitorias} - ${p2Vitorias}`;
+                faseSpan.textContent = `🥊 FASE ${fase}`;
+                userSpan.textContent = usuario;
+                atualizarRanking();
+            }
+
+            function atualizarPontosUI() {
+                pontosDisplay.textContent = pontos;
+            }
+
+            function atualizarRanking() {
+                const sorted = [...ranking].sort((a, b) => b.score - a.score);
+                if (sorted.length === 0) { rankingSpan.textContent = '—'; return; }
+                const top = sorted.slice(0, 5);
+                rankingSpan.textContent = top.map((p, i) => `${i + 1}º ${p.user} (${p.score})`).join(' · ');
+            }
+
+            function fazerLogin() {
+                const raw = nomeInput.value.trim();
+                usuario = raw || 'convidado';
+                nomeInput.value = usuario;
+                userSpan.textContent = usuario;
+                const found = ranking.find(p => p.user === usuario);
+                if (found) {
+                    if (pontos > found.score) found.score = pontos;
+                } else {
+                    ranking.push({ user: usuario, score: pontos });
+                }
+                atualizarRanking();
+            }
+
+            // ---------- FÍSICA ----------
+            function aplicarFisica(p) {
+                p.vy += p.gravidade;
+                p.y += p.vy;
+                const chao = 445;
+                if (p.y >= chao) {
+                    p.y = chao;
+                    p.vy = 0;
+                    p.noChao = true;
+                } else {
+                    p.noChao = false;
+                }
+                p.x = Math.max(40, Math.min(W - 40, p.x));
+                if (p.invencivel > 0) p.invencivel--;
+                if (p.timerAtaque > 0) {
+                    p.timerAtaque--;
+                    if (p.timerAtaque === 0) p.atacando = false;
+                }
+                p.z = Math.sin(Date.now() / 1000 + p.x / 100) * 0.5;
+                p.animFrame = (p.animFrame || 0) + 0.02;
+            }
+
+            // ---------- ATUALIZAR ----------
+            function atualizarJogo() {
+                if (!jogoIniciado || !p1 || !p2) return;
+
+                frameCount++;
+
+                for (let i = particulas.length - 1; i >= 0; i--) {
+                    const p = particulas[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.z += p.vz || 0;
+                    p.vy += 0.05;
+                    p.vx *= 0.99;
+                    p.vz *= 0.99;
+                    p.vida--;
+                    if (p.vida <= 0) particulas.splice(i, 1);
+                }
+
+                if (!roundAtivo) {
+                    tempoRound++;
+                    if (tempoRound > 60) resetarLuta();
+                    return;
+                }
+
+                aplicarFisica(p1);
+                aplicarFisica(p2);
+
+                if (p2.x < p1.x) {
+                    p1.facing = 1;
+                    p2.facing = -1;
+                } else {
+                    p1.facing = -1;
+                    p2.facing = 1;
+                }
+
+                if (p2.vida <= 0) {
+                    p1Vitorias++;
+                    roundAtivo = false;
+                    tempoRound = 0;
+                    atualizarUI();
+                    if (p1Vitorias >= VITORIAS_POR_FASE) {
+                        fase++;
+                        p1Vitorias = 0;
+                        p2Vitorias = 0;
+                        const bonus = (fase - 1) * 0.15;
+                        p2.velocidade = Math.min(4.5, p2.velocidade + bonus);
+                        p2.maxVida += 5;
+                        p2.vida = p2.maxVida;
+                    }
+                    setTimeout(resetarLuta, 800);
+                    return;
+                }
+
+                if (p1.vida <= 0) {
+                    p2Vitorias++;
+                    roundAtivo = false;
+                    tempoRound = 0;
+                    atualizarUI();
+                    if (p2Vitorias >= VITORIAS_POR_FASE) {
+                        fase++;
+                        p1Vitorias = 0;
+                        p2Vitorias = 0;
+                        const bonus = (fase - 1) * 0.15;
+                        p1.velocidade = Math.min(4.5, p1.velocidade + bonus);
+                        p1.maxVida += 5;
+                        p1.vida = p1.maxVida;
+                    }
+                    setTimeout(resetarLuta, 800);
+                    return;
+                }
+
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 35) {
+                    const ang = Math.atan2(dy, dx);
+                    p1.x += Math.cos(ang) * 2;
+                    p1.y += Math.sin(ang) * 2;
+                    p2.x -= Math.cos(ang) * 2;
+                    p2.y -= Math.sin(ang) * 2;
+                }
+            }
+
+            // ---------- RENDER ----------
+            function desenhar() {
+                ctx.clearRect(0, 0, W, H);
+
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+                skyGrad.addColorStop(0, '#0a0a1a');
+                skyGrad.addColorStop(0.5, '#1a1a3a');
+                skyGrad.addColorStop(1, '#2a1a2a');
+                ctx.fillStyle = skyGrad;
+                ctx.fillRect(0, 0, W, H);
+
+                ctx.fillStyle = '#2a2a44';
+                ctx.fillRect(0, H - 60, W, 60);
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, H - 57, W, 3);
+
+                for (let i = 0; i < 12; i++) {
+                    const x = i * 80;
+                    const p1d = project3D(x, H - 38, 0);
+                    const p2d = project3D(x + 80, H - 38, 0);
+                    ctx.strokeStyle = `rgba(255,255,255,${0.03 + i * 0.005})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(p1d.x, p1d.y);
+                    ctx.lineTo(p2d.x, p2d.y);
+                    ctx.stroke();
+                }
+
+                const center = project3D(W / 2, H - 38, 0);
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.ellipse(center.x, center.y, 130, 38, 0, 0, Math.PI * 2);
+                ctx.stroke();
+
+                for (let p of particulas) {
+                    const p3d = project3D(p.x, p.y, p.z || 0);
+                    ctx.globalAlpha = p.vida / 30;
+                    ctx.shadowColor = p.cor;
+                    ctx.shadowBlur = 20;
+                    ctx.fillStyle = p.cor;
+                    ctx.beginPath();
+                    ctx.arc(p3d.x, p3d.y, p.raio * p3d.scale, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.globalAlpha = 1;
+                }
+
+                if (p1 && p2) {
+                    desenharLutador(p1, p1.x, p1.y, p1.z, p1.facing, p1.atacando, p1.ataqueTipo, p1.timerAtaque, p1.invencivel, p1.animFrame, 'P1', '#3b82f6');
+                    desenharLutador(p2, p2.x, p2.y, p2.z, p2.facing, p2.atacando, p2.ataqueTipo, p2.timerAtaque, p2.invencivel, p2.animFrame, 'P2', '#ef4444');
+                }
+
+                // Barras de vida
+                if (p1 && p2) {
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 10;
+
+                    ctx.fillStyle = '#222244';
+                    ctx.fillRect(25, 18, 250, 26);
+                    const vidaP1 = Math.max(0, p1.vida / p1.maxVida);
+                    const gradP1 = ctx.createLinearGradient(25, 0, 275, 0);
+                    gradP1.addColorStop(0, '#2563eb');
+                    gradP1.addColorStop(1, '#3b82f6');
+                    ctx.fillStyle = gradP1;
+                    ctx.fillRect(25, 18, vidaP1 * 250, 26);
+                    ctx.strokeStyle = '#ffffff33';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(25, 18, 250, 26);
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 13px sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(`P1 ${p1.nome} ${p1.vida.toFixed(0)}`, 30, 36);
+
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 10;
+                    ctx.fillStyle = '#442222';
+                    ctx.fillRect(W - 275, 18, 250, 26);
+                    const vidaP2 = Math.max(0, p2.vida / p2.maxVida);
+                    const gradP2 = ctx.createLinearGradient(W - 275, 0, W - 25, 0);
+                    gradP2.addColorStop(0, '#dc2626');
+                    gradP2.addColorStop(1, '#ef4444');
+                    ctx.fillStyle = gradP2;
+                    ctx.fillRect(W - 275, 18, vidaP2 * 250, 26);
+                    ctx.strokeStyle = '#ffffff33';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(W - 275, 18, 250, 26);
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 13px sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`${p2.vida.toFixed(0)} ${p2.nome} P2`, W - 30, 36);
+                    ctx.textAlign = 'left';
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '13px sans-serif';
+                    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                    ctx.shadowBlur = 8;
+                    ctx.fillText(`FASE ${fase}  ·  P1: ${p1Vitorias}  P2: ${p2Vitorias}`, 20, 70);
+                    ctx.fillText(`P1 Combo: ${p1.combo}x  P2 Combo: ${p2.combo}x`, 20, 92);
+                    ctx.fillText(`💰 ${pontos} pts`, 20, 114);
+                    ctx.shadowBlur = 0;
+
+                    if (!roundAtivo) {
+                        ctx.fillStyle = '#ffd700';
+                        ctx.font = 'bold 42px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.shadowColor = '#ffd700';
+                        ctx.shadowBlur = 50;
+                        if (p1.vida <= 0) ctx.fillText('💀 P2 VENCEU!', W / 2, 230);
+                        else if (p2.vida <= 0) ctx.fillText('🎉 P1 VENCEU!', W / 2, 230);
+                        ctx.shadowBlur = 0;
+                        ctx.textAlign = 'left';
+                    }
+                }
+            }
+
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.moveTo(x + r, y);
+                this.lineTo(x + w - r, y);
+                this.quadraticCurveTo(x + w, y, x + w, y + r);
+                this.lineTo(x + w, y + h - r);
+                this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                this.lineTo(x + r, y + h);
+                this.quadraticCurveTo(x, y + h, x, y + h - r);
+                this.lineTo(x, y + r);
+                this.quadraticCurveTo(x, y, x + r, y);
+                this.closePath();
+                return this;
+            };
+
+            // ---------- GAME LOOP ----------
+            function loop() {
+                atualizarJogo();
+                desenhar();
+                requestAnimationFrame(loop);
+            }
+
+            // ---------- EVENTOS ----------
+            document.addEventListener('keydown', (e) => {
+                if (!jogoIniciado || !p1 || !p2) return;
+
+                // P1 - WASD
+                if (e.key === 'w' || e.key === 'W') { if (p1.noChao) { p1.vy = p1.pulo; p1.noChao = false; } e.preventDefault(); }
+                if (e.key === 'a' || e.key === 'A') { p1.x -= p1.velocidade; e.preventDefault(); }
+                if (e.key === 'd' || e.key === 'D') { p1.x += p1.velocidade; e.preventDefault(); }
+                if (e.key === 'z' || e.key === 'Z') { executarAtaque(p1, p2, 'soco'); e.preventDefault(); }
+                if (e.key === 'x' || e.key === 'X') { executarAtaque(p1, p2, 'chute'); e.preventDefault(); }
+
+                // P2 - Setas
+                if (e.key === 'ArrowUp') { if (p2.noChao) { p2.vy = p2.pulo; p2.noChao = false; } e.preventDefault(); }
+                if (e.key === 'ArrowLeft') { p2.x -= p2.velocidade; e.preventDefault(); }
+                if (e.key === 'ArrowRight') { p2.x += p2.velocidade; e.preventDefault(); }
+                if (e.key === '1') { executarAtaque(p2, p1, 'soco'); e.preventDefault(); }
+                if (e.key === '2') { executarAtaque(p2, p1, 'chute'); e.preventDefault(); }
+
+                if (e.key === 'F1') {
+                    e.preventDefault();
+                    modalAjuda.style.display = 'flex';
+                }
+            });
+
+            // Menu
+            menuBtn.addEventListener('click', () => {
+                modalMenu.style.display = 'flex';
+                if (jogoIniciado) {
+                    jogoIniciado = false;
+                }
+            });
+
+            fecharMenu.addEventListener('click', () => {
+                modalMenu.style.display = 'none';
+                if (!jogoIniciado) {
+                    iniciarLuta();
+                }
+            });
+
+            // Seleção de personagem
+            document.querySelectorAll('.char-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.char-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    const char = btn.dataset.char;
+                    personagemAtualP1 = char;
+                    p1CharName.textContent = PERSONAGENS[char].nome;
+
+                    // P2 fica com um personagem diferente
+                    const keys = Object.keys(PERSONAGENS);
+                    let p2char;
+                    do {
+                        p2char = keys[Math.floor(Math.random() * keys.length)];
+                    } while (p2char === char);
+                    personagemAtualP2 = p2char;
+                    p2CharName.textContent = PERSONAGENS[p2char].nome;
+
+                    if (jogoIniciado) {
+                        iniciarLuta();
+                    }
+                });
+            });
+
+            // Upgrades
+            document.getElementById('upgradeSoco').addEventListener('click', () => {
+                if (pontos >= 100) {
+                    pontos -= 100;
+                    socoLevel++;
+                    socoLevelSpan.textContent = `Nv.${socoLevel}`;
+                    atualizarPontosUI();
+                    if (jogoIniciado) iniciarLuta();
+                }
+            });
+            document.getElementById('upgradeChute').addEventListener('click', () => {
+                if (pontos >= 100) {
+                    pontos -= 100;
+                    chuteLevel++;
+                    chuteLevelSpan.textContent = `Nv.${chuteLevel}`;
+                    atualizarPontosUI();
+                    if (jogoIniciado) iniciarLuta();
+                }
+            });
+            document.getElementById('upgradeVel').addEventListener('click', () => {
+                if (pontos >= 80) {
+                    pontos -= 80;
+                    velLevel++;
+                    velLevelSpan.textContent = `Nv.${velLevel}`;
+                    atualizarPontosUI();
+                    if (jogoIniciado) iniciarLuta();
+                }
+            });
+            document.getElementById('upgradeVida').addEventListener('click', () => {
+                if (pontos >= 120) {
+                    pontos -= 120;
+                    vidaLevel++;
+                    vidaLevelSpan.textContent = `Nv.${vidaLevel}`;
+                    atualizarPontosUI();
+                    if (jogoIniciado) iniciarLuta();
+                }
+            });
+
+            loginBtn.addEventListener('click', fazerLogin);
+            resetBtn.addEventListener('click', resetarJogo);
+            ajudaBtn.addEventListener('click', () => { modalAjuda.style.display = 'flex'; });
+            fecharAjuda.addEventListener('click', () => { modalAjuda.style.display = 'none'; });
+            window.addEventListener('click', (e) => {
+                if (e.target === modalAjuda) modalAjuda.style.display = 'none';
+                if (e.target === modalMenu) modalMenu.style.display = 'none';
+            });
+
+            // ---------- INICIALIZAR ----------
+            function iniciar() {
+                usuario = nomeInput.value.trim() || 'convidado';
+                userSpan.textContent = usuario;
+                atualizarRanking();
+                atualizarPontosUI();
+                loop();
+                // Menu já está aberto (display:flex)
+            }
+
+            iniciar();
+            nomeInput.addEventListener('change', fazerLogin);
+        })();
+    </script>
+</body>
+
+</html>
